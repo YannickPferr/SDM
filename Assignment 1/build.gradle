@@ -1,0 +1,29 @@
+apply plugin: 'java'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    // https://mvnrepository.com/artifact/org.hamcrest/hamcrest-core
+    testCompile group: 'org.hamcrest', name: 'hamcrest-core', version: '1.3'
+    testCompile 'junit:junit:4.12'
+}
+
+task createSubmissionZip(type: Zip) {
+    dependsOn 'clean'
+    dependsOn 'test'
+
+    archiveName = "submission.zip"
+    destinationDir = file("${projectDir}")
+
+    from "${projectDir}/src"
+    include "**/exercise/*.java"
+    // Flatten the hierarchy by setting the path of all files to their respective basename
+    eachFile {
+        path = name
+    }
+    // Flattening the hierarchy leaves empty directories, do not copy those
+    includeEmptyDirs = false
+
+}

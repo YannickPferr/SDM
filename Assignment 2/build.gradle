@@ -1,0 +1,49 @@
+apply plugin: 'java'
+
+
+//Create list of files used in current exercise
+def exerciseFiles = ['**/exercise/Leaf.java', '**/exercise/Node.java', '**/exercise/UniqueBPlusTree.java']
+
+repositories {
+    jcenter()
+}
+sourceSets {
+    main {
+        java {
+            if (file("${projectDir}/libs/exerciseCommonBase.jar").exists()) {
+                exclude 'de/tuda/dmdb/access/exercise/HeapTable.java',
+                        'de/tuda/dmdb/storage/exercise/RowPage.java',
+                        'de/tuda/dmdb/storage/types/exercise/SQLInteger.java',
+                        'de/tuda/dmdb/storage/types/exercise/SQLVarchar.java'
+            }
+        }
+    }
+}
+dependencies {
+    // https://mvnrepository.com/artifact/org.hamcrest/hamcrest-core
+    testCompile group: 'org.hamcrest', name: 'hamcrest-core', version: '1.3'
+    testCompile 'junit:junit:4.12'
+
+    if (file("libs/exerciseCommonBase.jar").exists())
+    {
+        compile files('libs/exerciseCommonBase.jar')
+    }
+}
+
+task createSubmissionZip(type: Zip) {
+    dependsOn 'clean'
+    dependsOn 'test'
+
+    archiveName = "submission.zip"
+    destinationDir = file("${projectDir}")
+
+    from "${projectDir}/src"
+    include exerciseFiles
+    // Flatten the hierarchy by setting the path of all files to their respective basename
+    eachFile {
+        path = name
+    }
+    // Flattening the hierarchy leaves empty directories, do not copy those
+    includeEmptyDirs = false
+
+}
